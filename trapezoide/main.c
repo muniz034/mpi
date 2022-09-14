@@ -17,8 +17,6 @@ float calculaIntegral(float *limits, float deltaX, int nTrapezoidesPorRank){
         soma += f(x);
     }
 
-    printf(">>> %f\n", x);
-
     return soma * deltaX;
 }
 
