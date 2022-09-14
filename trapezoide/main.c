@@ -4,17 +4,21 @@
 #include <math.h>
 #include "mpi.h"
 
-double f(double x){
+float f(float x){
     return x * x;
 }
 
-double calculaIntegral(double *limits, double deltaX){
-    double soma = 0;
-    soma += f(limits[0])/2.0;
-    soma += f(limits[1])/2.0;
+float calculaIntegral(float *limits, float deltaX, int nTrapezoidesPorRank){
+    float soma = (f(limits[0]) + f(limits[1]))/2.0;
+    float x = limits[0];
 
-    for(double x = limits[0] + deltaX; x < limits[1]; x += deltaX) soma += f(x);
-    
+    for(int i = 0; i < nTrapezoidesPorRank; i++){
+        x += deltaX;
+        soma += f(x);
+    }
+
+    printf(">>> %f\n", x);
+
     return soma * deltaX;
 }
 
@@ -29,29 +33,40 @@ int main(int argc, char **argv){
 
     int limitA = atoi(argv[1]);
     int limitB = atoi(argv[2]);
-
     int nTrapezoides = atoi(argv[3]);
-    double deltaX = (double) (limitB - limitA)/nTrapezoides;
-    double nTrapezoidesPorRank = nTrapezoides/size;
 
-    double a = limitA + (rank * nTrapezoidesPorRank * deltaX);
-    double b = a + (nTrapezoidesPorRank * deltaX);
+    float deltaX = (float) (limitB - limitA)/nTrapezoides;
 
-    double limits[2] = { a, b };
+    int nTrapezoidesPorRank = nTrapezoides/size;
 
-    double integralParcial = calculaIntegral(limits, deltaX);
-    double integral = integralParcial;
+    float a = limitA + (rank * nTrapezoidesPorRank * deltaX);
+    float b = (rank == size - 1) ? limitB : a + (nTrapezoidesPorRank * deltaX);
 
-    if(rank != 0){
-        MPI_Send(&integral, 1, MPI_DOUBLE, 0, 200, MPI_COMM_WORLD);
-    } else {
-        for(int i = 1; i < size; i++){
-            MPI_Recv(&integralParcial, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-            integral += integralParcial;
+    // Sem balanceamento de carga
+    // if(rank == (size - 1)) nTrapezoidesPorRank += (nTrapezoides % size);
+
+    // Com balanceamento de carga
+    if(nTrapezoides % size > 0){
+        if(rank < (nTrapezoides % size)){
+            nTrapezoidesPorRank++;
+            a = (limitA + (rank * nTrapezoidesPorRank * deltaX));
+            b = (a + nTrapezoidesPorRank * deltaX);
+        } else {
+            a = (limitA + rank * nTrapezoidesPorRank * deltaX) + ((nTrapezoides % size) * deltaX);
+            b += (rank == size - 1) ? 0 : ((nTrapezoides % size) * deltaX);
         }
-
-        printf("INTEGRAL: %f\n", integral);
     }
+    
+    printf("%d >>> %f %f %d\n", rank, a, b, nTrapezoidesPorRank);
+
+    float limits[2] = { a, b };
+
+    float integralParcial = calculaIntegral(limits, deltaX, nTrapezoidesPorRank);
+    float integral;
+
+    MPI_Reduce(&integralParcial, &integral, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if(rank == 0) printf("INTEGRAL: %f\n", integral);
 
     MPI_Finalize();
 
