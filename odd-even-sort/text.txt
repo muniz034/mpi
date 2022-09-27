@@ -1,0 +1,74 @@
+i: 0 OK
+Processo 0
+13; 55; 59; 88;
+Processo 0
+13; 29; 43; 55;
+Processo 1
+29; 43; 71; 85;
+Processo 1
+59; 71; 85; 88;
+
+Processo 2
+2; 18; 40; 75;
+Processo 2
+2; 4; 14; 18;
+Processo 3
+4; 14; 22; 43;
+Processo 3
+22; 40; 43; 75;
+
+i: 1
+Processo 0
+13; 29; 43; 55;
+Processo 0
+13; 29; 43; 55;
+
+Processo 1
+59; 71; 85; 88;
+Processo 1
+59; 71; 85; 88;
+Processo 2
+2; 4; 14; 18;
+Processo 2
+2; 4; 14; 18;
+
+Processo 3
+22; 40; 43; 75;
+Processo 3
+22; 40; 43; 75;
+
+i: 2
+Processo 0
+13; 29; 43; 55;
+Processo 0
+13; 29; 43; 55;
+Processo 1
+59; 71; 85; 88;
+Processo 1
+59; 71; 85; 88;
+Processo 2
+2; 4; 14; 18;
+Processo 2
+2; 4; 14; 18;
+Processo 3
+22; 40; 43; 75;
+Processo 3
+22; 40; 43; 75;
+
+i: 3
+Processo 0
+13; 29; 43; 55;
+Processo 0
+13; 29; 43; 55;
+Processo 1
+59; 71; 85; 88;
+Processo 1
+59; 71; 85; 88;
+Processo 2
+2; 4; 14; 18;
+Processo 2
+2; 4; 14; 18;
+Processo 3
+22; 40; 43; 75;
+Processo 3
+22; 40; 43; 75;
