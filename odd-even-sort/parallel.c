@@ -20,23 +20,17 @@ int main(int argc, char **argv){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     int n = atoi(argv[1]);
-    int *A = (int *)malloc(sizeof(int) * n);
+    int *A = (int *)malloc(sizeof(int) * (n/size));
 
     if(rank == 0){
         srand(time(NULL));
-        generateVector(A, n);
-        // printarVetor(rank, A, n);
+        generateVector(A, n/size);
     }
 
-    MPI_Scatter(A, n / size, MPI_INT, A, n / size, MPI_INT, 0, MPI_COMM_WORLD);
-
     n /= size;
-    A = (int *)realloc(A, sizeof(int) * n);
 
     qsort(A, n, sizeof(int), compare);
-
-    double time = MPI_Wtime();
-
+    
     for(int i = 0; i < size; i++){
         if(i % 2 == 1){ // Odd
             if(rank % 2 == 1){ // Se o processo for HIGH (0,[1]) (2,[3])
@@ -69,12 +63,10 @@ int main(int argc, char **argv){
                 MPI_Recv(A, n, MPI_INT, rank + 1, 200, MPI_COMM_WORLD, &status);
             }
         }
-        // MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     if(rank == 0) A = (int *)realloc(A, sizeof(int) * (n * size));
-
-    // MPI_Gather(A, n, MPI_INT, A, n * size, MPI_INT, 0, MPI_COMM_WORLD);
 
     if(rank != 0){
         MPI_Send(A, n, MPI_INT, 0, 200, MPI_COMM_WORLD);
@@ -83,8 +75,6 @@ int main(int argc, char **argv){
         for(int i = 1; i < size; i++) MPI_Recv(&A[i * n], n, MPI_INT, i, 200, MPI_COMM_WORLD, &status);
     }
 
-    // if(rank == 0) printarVetor(rank, A, n * size);
-    if(rank == 0) printf("end: %f\n", MPI_Wtime() - time);
 
     free(A);
 
